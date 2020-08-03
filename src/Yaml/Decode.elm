@@ -128,7 +128,7 @@ string =
     case v of
       Ast.String_ string_ -> Ok string_
       Ast.Null_ -> Ok ""
-      _ -> Err (Decoding "Expected string")
+      _ -> decodeError "string" v
 
 
 {-| Decode a YAML boolean into an Elm `Bool`.
@@ -145,7 +145,7 @@ bool =
   Decoder <| \v ->
     case v of
       Ast.Bool_ bool_ -> Ok bool_
-      _ -> Err (Decoding "Expected bool")
+      _ -> decodeError "bool" v
 
 
 {-| Decode a YAML number into an Elm `Int`.
@@ -164,7 +164,7 @@ int =
   Decoder <| \v ->
     case v of
       Ast.Int_ int_ -> Ok int_
-      _ -> Err (Decoding "Expected int")
+      _ -> decodeError "int" v
 
 
 {-| Decode a YAML number into an Elm `Float`.
@@ -184,7 +184,7 @@ float =
     case v of
       Ast.Float_ float_ -> Ok float_
       Ast.Int_ int_ -> Ok (toFloat int_)
-      _ -> Err (Decoding "Expected float")
+      _ -> decodeError "float" v
 
 {-| Decode a YAML null value into [Nothing](elm/core/latest/Maybe).
 
@@ -200,7 +200,7 @@ null =
     Decoder <| \v ->
         case v of
             Ast.Null_ -> Ok Maybe.Nothing
-            _ -> Err (Decoding "Expected null")
+            _ -> decodeError "null" v
 
 {-| Decode a nullable YAML value into an Elm value.
 
@@ -229,7 +229,7 @@ list decoder =
   Decoder <| \v ->
     case v of
       Ast.List_ list_ -> singleResult (List.map (fromValue decoder) list_)
-      _ -> Err (Decoding "Expected list")
+      _ -> decodeError "list" v
 
 {-| Decode a YAML record into an Elm `Dict`.
 
@@ -252,7 +252,7 @@ dict decoder =
                                       )
                     |> Dict.fromList
                     |> Ok
-            _ -> Err (Decoding "Expected record")
+            _ -> decodeError "record" v
 
 -- RECORD PRIMITIVES
 
@@ -678,3 +678,8 @@ find names decoder v0 =
       
     [] ->
       fromValue decoder v0
+
+decodeError : String -> Ast.Value -> Result Error a
+decodeError expected got =
+    Err (Decoding ("Expected " ++ expected
+                       ++ ", got: " ++ Ast.toString got))

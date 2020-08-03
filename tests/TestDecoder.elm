@@ -64,9 +64,9 @@ suite =
             , Test.test "quoted number" <|
                 \_ -> given "'5'" Yaml.string |> expectEqual "5"
             , Test.test "unquoted number" <|
-                \_ -> given "0" Yaml.string |> expectFail "Expected string"
+                \_ -> given "0" Yaml.string |> expectFail "Expected string, got: 0 (int)"
             , Test.test "unquoted bool" <|
-                \_ -> given "true" Yaml.string |> expectFail "Expected string"
+                \_ -> given "true" Yaml.string |> expectFail "Expected string, got: True (bool)"
             , Test.fuzz (Fuzz.map sanitiseString string) "random string" <|
                 \s -> given s Yaml.string |> expectEqual (String.trim s)
             ]
@@ -84,30 +84,30 @@ suite =
             , Test.test "boolean FALSE" <|
                 \_ -> given "FALSE" Yaml.bool |> expectEqual False
             , Test.test "empty" <|
-                \_ -> given "" Yaml.bool |> expectFail "Expected bool"
+                \_ -> given "" Yaml.bool |> expectFail "Expected bool, got: Null"
             , Test.test "non-boolean string" <|
-                \_ -> given "rubbish" Yaml.bool |> expectFail "Expected bool"
+                \_ -> given "rubbish" Yaml.bool |> expectFail "Expected bool, got: \"rubbish\""
             , Test.test "non-boolean number" <|
-                \_ -> given "3" Yaml.bool |> expectFail "Expected bool"
+                \_ -> given "3" Yaml.bool |> expectFail "Expected bool, got: 3 (int)"
             ]
         , Test.describe "numeric values"
             [ Test.fuzz int "integers" <|
                 \x -> given (String.fromInt x) Yaml.int |> expectEqual x
             , Test.test "float as integer" <|
-                \_ -> given "2.1" Yaml.int |> expectFail "Expected int"
+                \_ -> given "2.1" Yaml.int |> expectFail "Expected int, got: 2.1 (float)"
             , Test.test "rubbish as integer" <|
-                \_ -> given "rubbish" Yaml.int |> expectFail "Expected int"
+                \_ -> given "rubbish" Yaml.int |> expectFail "Expected int, got: \"rubbish\""
             , Test.test "empty string as integer" <|
-                \_ -> given "" Yaml.int |> expectFail "Expected int"
+                \_ -> given "" Yaml.int |> expectFail "Expected int, got: Null"
             , Test.fuzz float "floats" <|
                 \x ->
                     given (String.fromFloat x) Yaml.float |> expectEqual x
             , Test.test "integer as float" <|
                 \_ -> given "0" Yaml.float |> expectEqual 0.0
             , Test.test "rubbish as float" <|
-                \_ -> given "rubbish" Yaml.float |> expectFail "Expected float"
+                \_ -> given "rubbish" Yaml.float |> expectFail "Expected float, got: \"rubbish\""
             , Test.test "Empty string as float" <|
-                \_ -> given "" Yaml.float |> expectFail "Expected float"
+                \_ -> given "" Yaml.float |> expectFail "Expected float, got: Null"
             ]
         , Test.describe "null and nullable"
             [ Test.test "empty string as null" <|
@@ -117,7 +117,7 @@ suite =
             , Test.test "null as null" <|
                 \_ -> given " null " Yaml.null |> expectEqual Maybe.Nothing
             , Test.test "non-empty string as null" <|
-                \_ -> given "str" Yaml.null |> expectFail "Expected null"
+                \_ -> given "str" Yaml.null |> expectFail "Expected null, got: \"str\""
             , Test.test "nullable string" <|
                 \_ -> given "" (Yaml.nullable Yaml.string) |> expectEqual Maybe.Nothing
             , Test.test "nullable bool" <|
