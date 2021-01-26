@@ -4,6 +4,7 @@ import Dict
 import Expect
 import Fuzz exposing (bool, float, int, list, map2, string)
 import Test
+import Yaml.Decode as Decode
 import Yaml.Encode as Encode
 
 
@@ -340,5 +341,40 @@ suite =
                 \_ ->
                     Expect.equal "---\n5\n..."
                         (Encode.toString 0 (Encode.document <| Encode.int 5))
+            ]
+        , Test.describe "Raw decoder values"
+            [ Test.test "A null value roundtrip" <|
+                \_ ->
+                    let
+                        null : Maybe Decode.Value
+                        null =
+                            Decode.fromString Decode.value "null"
+                                |> Result.toMaybe
+                    in
+                    Expect.equal
+                        (Just "null")
+                        (Maybe.map (\val -> Encode.toString 0 (Encode.value val)) null)
+            , Test.test "A list roundtrip" <|
+                \_ ->
+                    let
+                        mylist : Maybe Decode.Value
+                        mylist =
+                            Decode.fromString Decode.value "[1, 3, 42, 11]"
+                                |> Result.toMaybe
+                    in
+                    Expect.equal
+                        (Just "[1,3,42,11]")
+                        (Maybe.map (\val -> Encode.toString 0 (Encode.value val)) mylist)
+            , Test.test "A record containing lists roundtrip" <|
+                \_ ->
+                    let
+                        myrec : Maybe Decode.Value
+                        myrec =
+                            Decode.fromString Decode.value "{a: [1], b: [2]}"
+                                |> Result.toMaybe
+                    in
+                    Expect.equal
+                        (Just "{a: [1],b: [2]}")
+                        (Maybe.map (\val -> Encode.toString 0 (Encode.value val)) myrec)
             ]
         ]

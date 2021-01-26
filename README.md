@@ -109,7 +109,7 @@ type alias Step =
     }
 
 -- top-level encoder
-encodeGHA : GHActions -> Value
+encodeGHA : GHActions -> Encoder
 encodeGHA action =
     record
         [ ("name", string action.name)
@@ -117,13 +117,13 @@ encodeGHA action =
         , ("jobs", encodeJobs action.jobs)
         ]
 
-encodeJobs : List Action -> Value
+encodeJobs : List Action -> Encoder
 encodeJobs actions =
     actions
         |> List.map (\action -> (action.id, encodeJob action))
         |> record
 
-encodeJob : Action -> Value
+encodeJob : Action -> Encoder
 encodeJob action =
     record
         [ ("name", action.name)
@@ -131,7 +131,7 @@ encodeJob action =
         , ("steps", list (encodeStep action.steps))
         ]
 
-encodeStep : Step -> Value
+encodeStep : Step -> Encoder
     record
         [ ("name", step.name)
         , ("uses", step.uses)

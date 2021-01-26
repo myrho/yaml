@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0]
+## Changed
+- The confusing `Yaml.Encode.Value` has been renamed `Yaml.Encode.Encoder` to distinguish it
+  from `Yaml.Decode.Value`.
+
+## Added
+- A function to encode `Yaml.Decode.Value`.
+
 ## [1.1.1]
 ## Fixed
 - A bug causing strings containing a colon to be interpreted as a mapping.
@@ -18,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Some small documentation issues and typos
 
-[Unreleased]: https://github.com/MaybeJustJames/yaml/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/MaybeJustJames/yaml/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/MaybeJustJames/yaml/compare/1.1.1...2.0.0
 [1.1.1]: https://github.com/MaybeJustJames/yaml/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/MaybeJustJames/yaml/compare/1.0.0...1.1.0
