@@ -7,15 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [2.0.0]
-## Changed
+### Changed
 - The confusing `Yaml.Encode.Value` has been renamed `Yaml.Encode.Encoder` to distinguish it
   from `Yaml.Decode.Value`.
 
-## Added
+### Added
 - A function to encode `Yaml.Decode.Value`.
 
 ## [1.1.1]
-## Fixed
+### Fixed
 - A bug causing strings containing a colon to be interpreted as a mapping.
 - A bug causing the list decoder to fail on empty strings.
 
