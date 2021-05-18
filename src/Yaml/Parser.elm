@@ -1,6 +1,6 @@
 module Yaml.Parser exposing (Value, fromString, parser, toString)
 
-import Dict
+import Dict exposing (Dict)
 import Parser as P exposing ((|.), (|=))
 import Regex exposing (Regex)
 import Yaml.Parser.Ast as Ast
@@ -93,7 +93,7 @@ problemToString p =
 {-| -}
 fromString : String -> Result String Ast.Value
 fromString =
-    P.run parser >> Result.mapError deadEndsToString
+    P.run parser >> Result.mapError deadEndsToString >> Result.map deref
 
 
 {-| -}
@@ -179,6 +179,16 @@ listElementBegin =
 
 listElementValue : Int -> P.Parser Ast.Value
 listElementValue indent =
+    let
+        elVal : Int -> P.Parser Ast.Value
+        elVal indent_ =
+            P.oneOf
+                [ listInline
+                , recordInline
+                , list indent_
+                , recordOrString indent indent_
+                ]
+    in
     U.indented indent
         { smaller =
             P.succeed Ast.Null_
@@ -187,10 +197,9 @@ listElementValue indent =
         , larger =
             \indent_ ->
                 P.oneOf
-                    [ listInline
-                    , recordInline
-                    , list indent_
-                    , recordOrString indent indent_
+                    [ anchor (elVal indent_)
+                    , reference
+                    , elVal indent_
                     ]
         , ending =
             P.succeed Ast.Null_
@@ -231,11 +240,20 @@ listInlineStep elements =
 
 listInlineValue : P.Parser Ast.Value
 listInlineValue =
+    let
+        inlineVal : P.Parser Ast.Value
+        inlineVal =
+            P.oneOf
+                [ listInline
+                , recordInline
+                , quotedString 0
+                , listInlineString
+                ]
+    in
     P.oneOf
-        [ listInline
-        , recordInline
-        , quotedString 0
-        , listInlineString
+        [ anchor inlineVal
+        , reference
+        , inlineVal
         ]
 
 
@@ -396,6 +414,16 @@ recordElement indent =
 
 recordElementValue : Int -> P.Parser Ast.Value
 recordElementValue indent =
+    let
+        elVal : Int -> P.Parser Ast.Value
+        elVal indent_ =
+            P.oneOf
+                [ listInline
+                , recordInline
+                , list indent_
+                , recordOrString indent indent_
+                ]
+    in
     U.indented indent
         { smaller =
             P.succeed Ast.Null_
@@ -407,10 +435,9 @@ recordElementValue indent =
         , larger =
             \indent_ ->
                 P.oneOf
-                    [ listInline
-                    , recordInline
-                    , list indent_
-                    , recordOrString indent indent_
+                    [ anchor (elVal indent_)
+                    , reference
+                    , elVal indent_
                     ]
         , ending =
             P.succeed Ast.Null_
@@ -489,10 +516,18 @@ recordInlinePropertyNameString =
 
 recordInlinePropertyValue : P.Parser Ast.Value
 recordInlinePropertyValue =
+    let
+        propVal =
+            P.oneOf
+                [ listInline
+                , recordInline
+                , recordInlineString
+                ]
+    in
     P.oneOf
-        [ listInline
-        , recordInline
-        , recordInlineString
+        [ anchor propVal
+        , reference
+        , propVal
         ]
 
 
@@ -527,3 +562,68 @@ recordInlineOnDone elements element =
         :: elements
         |> List.reverse
         |> P.Done
+
+
+
+-- ANCHOR and REFERENCE
+
+
+anchor : P.Parser Ast.Value -> P.Parser Ast.Value
+anchor valParser =
+    P.succeed Ast.Anchor_
+        |. P.symbol "&"
+        |= refName
+        |. U.whitespace
+        |= valParser
+
+
+reference : P.Parser Ast.Value
+reference =
+    P.succeed Ast.Alias_
+        |. P.symbol "*"
+        |= refName
+        |. U.whitespace
+
+
+refName : P.Parser String
+refName =
+    P.succeed identity
+        |= (P.getChompedString <|
+                P.chompWhile
+                    (\c ->
+                        not <|
+                            List.member c [ ' ', ',', '[', ']', '{', '}' ]
+                    )
+           )
+
+
+deref : Ast.Value -> Ast.Value
+deref ast =
+    let
+        anchorMap : Dict String Ast.Value
+        anchorMap =
+            Ast.fold
+                (\node d ->
+                    case node of
+                        Ast.Anchor_ name v ->
+                            Dict.insert name v d
+
+                        _ ->
+                            d
+                )
+                Dict.empty
+                ast
+
+        replaceAnchors : Ast.Value -> Ast.Value
+        replaceAnchors v =
+            case v of
+                Ast.Alias_ name ->
+                    Dict.get name anchorMap |> Maybe.withDefault v
+
+                Ast.Anchor_ _ node ->
+                    node
+
+                _ ->
+                    v
+    in
+    Ast.map replaceAnchors ast

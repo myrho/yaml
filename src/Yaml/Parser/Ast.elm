@@ -1,6 +1,6 @@
-module Yaml.Parser.Ast exposing (Property, Value(..), fromString, toString)
+module Yaml.Parser.Ast exposing (Property, Value(..), fold, fromString, map, toString)
 
-import Dict
+import Dict exposing (Dict)
 
 
 
@@ -13,9 +13,11 @@ type Value
     | Float_ Float
     | Int_ Int
     | List_ (List Value)
-    | Record_ (Dict.Dict String Value)
+    | Record_ (Dict String Value)
     | Bool_ Bool
     | Null_
+    | Anchor_ String Value
+    | Alias_ String
 
 
 {-| -}
@@ -89,7 +91,75 @@ toString value =
         Null_ ->
             "Null"
 
+        Anchor_ name r_val ->
+            "&" ++ name ++ " " ++ toString r_val
+
+        Alias_ name ->
+            "*" ++ name
+
 
 toStringProperty : Property -> String
 toStringProperty ( name, value ) =
     name ++ ": " ++ toString value
+
+
+fold : (Value -> b -> b) -> b -> Value -> b
+fold f z value =
+    case value of
+        String_ _ ->
+            f value z
+
+        Float_ _ ->
+            f value z
+
+        Int_ _ ->
+            f value z
+
+        Bool_ _ ->
+            f value z
+
+        Null_ ->
+            f value z
+
+        Alias_ _ ->
+            f value z
+
+        List_ l ->
+            List.foldl f (f value z) l
+
+        Record_ r ->
+            List.foldl f (f value z) (Dict.values r)
+
+        Anchor_ _ a ->
+            fold f (f value z) a
+
+
+map : (Value -> Value) -> Value -> Value
+map f value =
+    case value of
+        String_ _ ->
+            f value
+
+        Float_ _ ->
+            f value
+
+        Int_ _ ->
+            f value
+
+        Bool_ _ ->
+            f value
+
+        Null_ ->
+            f value
+
+        Alias_ _ ->
+            f value
+
+        List_ l ->
+            f (List_ (List.map (map f) l))
+
+        Record_ r ->
+            f (Record_ <| Dict.fromList (List.map (\( k, v ) -> ( k, map f v )) (Dict.toList r)))
+
+        Anchor_ name a ->
+            f (Anchor_ name (map f a))

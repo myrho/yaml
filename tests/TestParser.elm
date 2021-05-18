@@ -3,6 +3,7 @@ module TestParser exposing (suite)
 import Dict
 import Expect
 import Fuzz exposing (float, int)
+import Parser as P
 import Test
 import Yaml.Parser as Parser
 import Yaml.Parser.Ast as Ast
@@ -406,12 +407,91 @@ suite =
             \_ ->
                 expectValue "  a: 1    \n  b: 2     " <|
                     Ast.Record_ (Dict.fromList [ ( "a", Ast.Int_ 1 ), ( "b", Ast.Int_ 2 ) ])
+        , Test.test "Ast for anchor and reference in inline list" <|
+            \_ ->
+                expectRawAst "[ &1 test, *1]" <|
+                    Ast.List_
+                        [ Ast.Anchor_ "1" (Ast.String_ "test")
+                        , Ast.Alias_ "1"
+                        ]
+        , Test.test "Anchor and reference in inline list" <|
+            \_ ->
+                expectValue "[ &1 test, *1]" <|
+                    Ast.List_
+                        [ Ast.String_ "test"
+                        , Ast.String_ "test"
+                        ]
+        , Test.test "Ast for anchor and reference in list" <|
+            \_ ->
+                expectRawAst "- &1 test\n- *1" <|
+                    Ast.List_
+                        [ Ast.Anchor_ "1" (Ast.String_ "test")
+                        , Ast.Alias_ "1"
+                        ]
+        , Test.test "Anchor and reference in list" <|
+            \_ ->
+                expectValue "- &1 test\n- *1" <|
+                    Ast.List_
+                        [ Ast.String_ "test"
+                        , Ast.String_ "test"
+                        ]
+        , Test.test "Ast for anchor and reference in inline record" <|
+            \_ ->
+                expectRawAst "{a: &1 test, b: *1}" <|
+                    Ast.Record_
+                        (Dict.fromList
+                            [ ( "a", Ast.Anchor_ "1" (Ast.String_ "test") )
+                            , ( "b", Ast.Alias_ "1" )
+                            ]
+                        )
+        , Test.test "Anchor and reference in inline record" <|
+            \_ ->
+                expectValue "{a: &1 test, b: *1}" <|
+                    Ast.Record_
+                        (Dict.fromList
+                            [ ( "a", Ast.String_ "test" )
+                            , ( "b", Ast.String_ "test" )
+                            ]
+                        )
+        , Test.test "Ast for anchor and reference in record" <|
+            \_ ->
+                expectRawAst "a: &1 test\nb: *1" <|
+                    Ast.Record_
+                        (Dict.fromList
+                            [ ( "a", Ast.Anchor_ "1" (Ast.String_ "test") )
+                            , ( "b", Ast.Alias_ "1" )
+                            ]
+                        )
+        , Test.test "Anchor and reference in record" <|
+            \_ ->
+                expectValue "a: &1 test\nb: *1" <|
+                    Ast.Record_
+                        (Dict.fromList
+                            [ ( "a", Ast.String_ "test" )
+                            , ( "b", Ast.String_ "test" )
+                            ]
+                        )
+        , Test.test "Anchor and reference for complex record" <|
+            \_ ->
+                expectValue "a: &myref\n  foo: bar\nb: *myref\n" <|
+                    Ast.Record_
+                        (Dict.fromList
+                            [ ( "a", Ast.Record_ (Dict.singleton "foo" (Ast.String_ "bar")) )
+                            , ( "b", Ast.Record_ (Dict.singleton "foo" (Ast.String_ "bar")) )
+                            ]
+                        )
 
         -- TODO: This is temporarily removed because it is a valid test case that should pass
         -- , Test.test "weird colon record" <|
         --     \_ ->
         --       expectValue "::" <| Ast.Record_ (Dict.singleton ":" Ast.Null_)
         ]
+
+
+expectRawAst : String -> Ast.Value -> Expect.Expectation
+expectRawAst subject expected =
+    P.run Parser.parser subject
+        |> Expect.equal (Ok expected)
 
 
 expectValue : String -> Ast.Value -> Expect.Expectation

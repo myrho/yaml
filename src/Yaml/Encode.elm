@@ -251,6 +251,12 @@ value val =
         Record_ r ->
             dict identity value r
 
+        Anchor_ name rval ->
+            anchor name value rval
+
+        Alias_ name ->
+            alias_ name
+
 
 
 -- DATA STRUCTURES
@@ -492,6 +498,10 @@ document val =
         )
 
 
+
+-- HELPERS
+
+
 prefixed : String -> EncoderState -> String -> String
 prefixed prefix state val =
     if state.prefix then
@@ -499,3 +509,19 @@ prefixed prefix state val =
 
     else
         val
+
+
+anchor : String -> (Value -> Encoder) -> Value -> Encoder
+anchor name encode val =
+    Encoder
+        (\state ->
+            "&" ++ name ++ toString state.indent (encode val)
+        )
+
+
+alias_ : String -> Encoder
+alias_ name =
+    Encoder
+        (\_ ->
+            "*" ++ name
+        )

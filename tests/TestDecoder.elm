@@ -13,35 +13,16 @@ sanitiseString s =
     let
         replaceChar : Char -> Char
         replaceChar c =
-            case c of
-                '[' ->
-                    ' '
+            if List.member c [ '[', ']', '{', '}', '\'', '"', '#', ':', '-' ] then
+                ' '
 
-                '{' ->
-                    ' '
+            else
+                case String.toInt <| String.fromChar c of
+                    Just _ ->
+                        ' '
 
-                '\'' ->
-                    ' '
-
-                '"' ->
-                    ' '
-
-                '#' ->
-                    ' '
-
-                ':' ->
-                    ' '
-
-                '-' ->
-                    ' '
-
-                _ ->
-                    case String.toInt <| String.fromChar c of
-                        Just _ ->
-                            ' '
-
-                        _ ->
-                            c
+                    _ ->
+                        c
     in
     String.map replaceChar s
 
