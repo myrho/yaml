@@ -480,6 +480,55 @@ suite =
                             , ( "b", Ast.Record_ (Dict.singleton "foo" (Ast.String_ "bar")) )
                             ]
                         )
+        , Test.test "Real data with anchor and alias" <|
+            \_ ->
+                expectValue testYamlData <|
+                    Ast.Record_
+                        (Dict.singleton
+                            "graph"
+                            (Ast.Record_
+                                (Dict.singleton
+                                    "processors"
+                                    (Ast.Record_
+                                        (Dict.fromList
+                                            [ ( "ripple_filter1"
+                                              , Ast.Record_
+                                                    (Dict.singleton "options"
+                                                        (Ast.Record_
+                                                            (Dict.singleton
+                                                                "filter"
+                                                                (Ast.Record_
+                                                                    (Dict.singleton
+                                                                        "file"
+                                                                        (Ast.String_ "path/test/f.ext")
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                              )
+                                            , ( "ripple_filter2"
+                                              , Ast.Record_
+                                                    (Dict.singleton "options"
+                                                        (Ast.Record_
+                                                            (Dict.singleton
+                                                                "filter"
+                                                                (Ast.Record_
+                                                                    (Dict.singleton
+                                                                        "file"
+                                                                        (Ast.String_ "path/test/f.ext")
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                              )
+                                            ]
+                                        )
+                                    )
+                                )
+                            )
+                        )
 
         -- TODO: This is temporarily removed because it is a valid test case that should pass
         -- , Test.test "weird colon record" <|
@@ -504,3 +553,17 @@ expectErr : String -> Expect.Expectation
 expectErr subject =
     Parser.fromString subject
         |> Expect.err
+
+
+testYamlData : String
+testYamlData =
+    """
+graph:
+  processors:
+    ripple_filter1:
+      options: &1
+        filter:
+          file: path/test/f.ext
+    ripple_filter2:
+      options: *1
+"""

@@ -197,7 +197,7 @@ listElementValue indent =
         , larger =
             \indent_ ->
                 P.oneOf
-                    [ anchor (elVal indent_)
+                    [ anchor elVal
                     , reference
                     , elVal indent_
                     ]
@@ -251,7 +251,7 @@ listInlineValue =
                 ]
     in
     P.oneOf
-        [ anchor inlineVal
+        [ anchor (always inlineVal)
         , reference
         , inlineVal
         ]
@@ -435,7 +435,7 @@ recordElementValue indent =
         , larger =
             \indent_ ->
                 P.oneOf
-                    [ anchor (elVal indent_)
+                    [ anchor elVal
                     , reference
                     , elVal indent_
                     ]
@@ -525,7 +525,7 @@ recordInlinePropertyValue =
                 ]
     in
     P.oneOf
-        [ anchor propVal
+        [ anchor (always propVal)
         , reference
         , propVal
         ]
@@ -568,13 +568,13 @@ recordInlineOnDone elements element =
 -- ANCHOR and REFERENCE
 
 
-anchor : P.Parser Ast.Value -> P.Parser Ast.Value
+anchor : (Int -> P.Parser Ast.Value) -> P.Parser Ast.Value
 anchor valParser =
     P.succeed Ast.Anchor_
         |. P.symbol "&"
         |= refName
         |. U.whitespace
-        |= valParser
+        |= (P.getCol |> P.andThen valParser)
 
 
 reference : P.Parser Ast.Value
@@ -582,7 +582,6 @@ reference =
     P.succeed Ast.Alias_
         |. P.symbol "*"
         |= refName
-        |. U.whitespace
 
 
 refName : P.Parser String
@@ -591,8 +590,19 @@ refName =
         |= (P.getChompedString <|
                 P.chompWhile
                     (\c ->
-                        not <|
-                            List.member c [ ' ', ',', '[', ']', '{', '}' ]
+                        not
+                            (List.member c
+                                [ '\u{000D}'
+                                , '\n'
+                                , ' '
+                                , '\t'
+                                , ','
+                                , '['
+                                , ']'
+                                , '{'
+                                , '}'
+                                ]
+                            )
                     )
            )
 
@@ -611,8 +621,8 @@ deref ast =
                         _ ->
                             d
                 )
-                Dict.empty
                 ast
+                Dict.empty
 
         replaceAnchors : Ast.Value -> Ast.Value
         replaceAnchors v =

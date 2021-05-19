@@ -103,8 +103,8 @@ toStringProperty ( name, value ) =
     name ++ ": " ++ toString value
 
 
-fold : (Value -> b -> b) -> b -> Value -> b
-fold f z value =
+fold : (Value -> b -> b) -> Value -> b -> b
+fold f value z =
     case value of
         String_ _ ->
             f value z
@@ -125,13 +125,13 @@ fold f z value =
             f value z
 
         List_ l ->
-            List.foldl f (f value z) l
+            f value (List.foldl (fold f) z l)
 
         Record_ r ->
-            List.foldl f (f value z) (Dict.values r)
+            f value (List.foldl (fold f) z (Dict.values r))
 
-        Anchor_ _ a ->
-            fold f (f value z) a
+        Anchor_ nm a ->
+            f value (fold f a z)
 
 
 map : (Value -> Value) -> Value -> Value
