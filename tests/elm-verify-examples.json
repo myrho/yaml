@@ -1,6 +1,4 @@
 {
   "root": "../src",
-  "tests": [
-    "Yaml.Encode"
-  ]
+  "tests": [ "Yaml.Encode", "Yaml.Decode" ]
 }
