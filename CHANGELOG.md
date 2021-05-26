@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.0]
 ### Fixed
 - Examples in the `Yaml.Decode` module are not executable by `elm-verify-examples`
 
@@ -40,8 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Some small documentation issues and typos
 
-[Unreleased]: https://github.com/MaybeJustJames/yaml/compare/2.0.2...HEAD
-[2.0.1]: https://github.com/MaybeJustJames/yaml/compare/2.0.1...2.0.2
+[Unreleased]: https://github.com/MaybeJustJames/yaml/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/MaybeJustJames/yaml/compare/2.0.2...2.1.0
+[2.0.2]: https://github.com/MaybeJustJames/yaml/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/MaybeJustJames/yaml/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/MaybeJustJames/yaml/compare/1.1.1...2.0.0
 [1.1.1]: https://github.com/MaybeJustJames/yaml/compare/1.1.0...1.1.1
