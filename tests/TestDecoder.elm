@@ -42,6 +42,8 @@ suite =
                 \_ -> given "'string'" Yaml.string |> expectEqual "string"
             , Test.test "double-quoted string" <|
                 \_ -> given "\"string\"" Yaml.string |> expectEqual "string"
+            , Test.test "escaped quote in string" <|
+                \_ -> given "\"string\\\"\"" Yaml.string |> expectEqual "string\""
             , Test.test "quoted number" <|
                 \_ -> given "'5'" Yaml.string |> expectEqual "5"
             , Test.test "unquoted number" <|
@@ -208,7 +210,7 @@ suite =
                     in
                     given strList (Yaml.list Yaml.string)
                         |> expectEqual
-                            (List.map (postProcessString << String.replace "\\" "\\\\") sanitised)
+                            (List.map postProcessString sanitised)
             , Test.fuzz (list bool) "list of boolean values" <|
                 \xs ->
                     let

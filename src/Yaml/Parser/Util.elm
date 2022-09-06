@@ -26,6 +26,7 @@ module Yaml.Parser.Util exposing
     )
 
 import Parser as P exposing ((|.), (|=))
+import Parser.Extras
 import Regex exposing (Regex)
 
 
@@ -255,21 +256,13 @@ characters_ isOk =
 {-| -}
 singleQuotes : P.Parser String
 singleQuotes =
-    P.succeed (String.replace "\\" "\\\\")
-        |. P.symbol "'"
-        |= characters_ (not << isSingleQuote)
-        |. P.symbol "'"
-        |. spaces
+    Parser.Extras.quotedString '\'' '\''
 
 
 {-| -}
 doubleQuotes : P.Parser String
 doubleQuotes =
-    P.succeed identity
-        |. P.symbol "\""
-        |= characters_ (not << isDoubleQuote)
-        |. P.symbol "\""
-        |. spaces
+    Parser.Extras.quotedString '\\' '"'
 
 
 {-| -}

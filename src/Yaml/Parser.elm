@@ -262,7 +262,7 @@ listInlineString =
     P.succeed ()
         |. P.chompWhile (U.neither U.isComma U.isListEnd)
         |> P.getChompedString
-        |> P.map (Ast.fromString << String.replace "\\" "\\\\")
+        |> P.map Ast.fromString
 
 
 listInlineNext : List Ast.Value -> Ast.Value -> P.Parser (P.Step (List Ast.Value) (List Ast.Value))

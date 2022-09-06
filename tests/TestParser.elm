@@ -113,10 +113,10 @@ suite =
                 expectValue "[\"\"]" <| Ast.List_ [ Ast.String_ "" ]
         , Test.test "an inline list with a backslash" <|
             \_ ->
-                expectValue "[ \\ ]" <| Ast.List_ [ Ast.String_ "\\\\" ]
+                expectValue "[ \\ ]" <| Ast.List_ [ Ast.String_ "\\" ]
         , Test.test "an inline list with a quoted backslash" <|
             \_ ->
-                expectValue "['\\']" <| Ast.List_ [ Ast.String_ "\\\\" ]
+                expectValue "['\\']" <| Ast.List_ [ Ast.String_ "\\" ]
         , Test.test "a list with an empty quoted string" <|
             \_ ->
                 expectValue " - ''" <| Ast.List_ [ Ast.String_ "" ]
@@ -542,7 +542,7 @@ aaa: bbb"""
                     key1: value1
                     key1: value2
                 """
-         , Test.test "an inline record with 2 duplicated keys, version 2" <|
+        , Test.test "an inline record with 2 duplicated keys, version 2" <|
             \_ ->
                 expectErr
                     """
