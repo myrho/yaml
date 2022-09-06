@@ -1,9 +1,9 @@
 {
     "type": "package",
-    "name": "MaybeJustJames/yaml",
-    "summary": "Work with YAML in Elm",
+    "name": "myrho/yaml",
+    "summary": "Work with YAML in Elm. Fork of MaybeJustJames/yaml.",
     "license": "BSD-3-Clause",
-    "version": "2.1.2",
+    "version": "1.0.0",
     "exposed-modules": [
         "Yaml.Decode",
         "Yaml.Encode"

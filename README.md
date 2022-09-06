@@ -1,16 +1,14 @@
 # YAML in Elm
 
-[![Tests Actions Status](https://github.com/MaybeJustJames/yaml/workflows/Tests/badge.svg)](https://github.com/MaybeJustJames/yaml/actions/) [![Elm package](https://img.shields.io/elm-package/v/MaybeJustJames/yaml.svg)](https://package.elm-lang.org/packages/MaybeJustJames/yaml/latest/)
-
 Convert between type-safe Elm values and [YAML](https://yaml.org).
 
-This is _temporarily_ forked from
-[terezka/yaml](https://package.elm-lang.org/packages/terezka/yaml/latest/) while that package is dormant.
+This is forked from
+[MaybeJustJames/yaml](https://package.elm-lang.org/packages/MaybeJustJames/yaml/latest/) while that package is dormant.
 
 ## Install
 
 ```bash
-$ elm install MaybeJustJames/yaml
+$ elm install myrho/yaml
 ```
 
 and import the library in an elm file like this
@@ -22,7 +20,7 @@ import Yaml.Encode -- for encoders
 
 ## Documentation
 
-Find the documentation on [Elm's package website](http://package.elm-lang.org/packages/MaybeJustJames/yaml/latest).
+Find the documentation on [Elm's package website](http://package.elm-lang.org/packages/myrho/yaml/latest).
 
 ## Example Usage
 

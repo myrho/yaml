@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.0.0]
+
+### Changed
+
+- Decoding of \ into \ and not \\.
+- Fix decoding of string with escaped quotes.
+
+# Changelog from forked repository MaybeJustJames/yaml
+
 ## [2.1.2]
 ### Changed
 - Error message for duplicated record keys now lists the duplicated keys ([#27](https://github.com/MaybeJustJames/yaml/pull/27)).
